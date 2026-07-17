@@ -76,6 +76,10 @@ http://127.0.0.1:80
 # Access Application using curl command
 curl http://localhost:80
 curl http://127.0.0.1:80
+
+# if above solution not works 
+kubectl port-forward service/webapp-nginx 8080:80
+curl http://127.0.0.1:8080
 ```
 ## Step-06: Uninstall Helm Release - NO FLAGS
 ```bash
