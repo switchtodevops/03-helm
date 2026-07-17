@@ -50,8 +50,6 @@
 
 ---
 
-# Part 2 - Hands-on Labs
-
 ## Installation & Basic Operations
 
 1. Install Docker Desktop and Helm CLI
@@ -66,7 +64,7 @@
 
 ---
 
-# Part 3 - Helm Chart Development
+# Part 2 - Helm Chart Development
 
 ## Chart Structure
 
@@ -145,7 +143,7 @@ Functions Covered:
 
 ---
 
-# Part 4 - Advanced Helm Concepts
+# Part 3 - Advanced Helm Concepts
 
 ## Create & Package Charts
 
