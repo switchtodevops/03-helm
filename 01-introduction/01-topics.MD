@@ -206,7 +206,7 @@ Topics Covered:
 
 ---
 
-# Part 5 - Production Features
+# Part 4 - Production Features
 
 ### 42. Resource Policy
 
