@@ -56,7 +56,6 @@ which kubectl
 
 # Verify kubectl version
 kubectl version 
-kubectl version --short
 kubectl version --client --output=yaml
 
 # List Config Contexts
