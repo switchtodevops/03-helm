@@ -1,5 +1,1197 @@
 # Helm Commands Reference
 
+This file is organized by Helm command family. All commands related to the same parent command are kept together.
+
+Recommended argument order:
+
+```bash
+helm <command> <release-name> <chart> --namespace <namespace> --version <chart-version> --values values.yaml --set key=value --wait --debug
+```
+
+Use `helm <command> --help` when you need the full official help for a command.
+
+## Command Family Index
+
+```bash
+helm repo          # manage chart repositories
+helm search        # search charts
+helm install       # install releases
+helm upgrade       # upgrade releases
+helm list          # list releases
+helm status        # show release status
+helm history       # show release revisions
+helm get           # get release details
+helm rollback      # roll back releases
+helm test          # run chart tests
+helm uninstall     # uninstall releases
+helm template      # render templates locally
+helm show          # show chart details
+helm pull          # download charts
+helm verify        # verify signed chart packages
+helm create        # create chart skeleton
+helm lint          # lint chart
+helm dependency    # manage chart dependencies
+helm package       # package chart
+helm registry      # login/logout OCI registry
+helm push          # push chart to registry
+helm plugin        # manage plugins
+helm completion    # shell completion
+helm env           # Helm environment
+helm version       # Helm version
+helm help          # command help
+```
+
+## 1. `helm repo` - Repository Commands
+
+Use `helm repo` to add, update, list, remove, and index Helm chart repositories.
+
+### Required `helm repo` Commands
+
+```bash
+helm repo add <repo-name> <repo-url>
+helm repo update
+helm repo update <repo-name>
+helm repo list
+helm repo remove <repo-name>
+helm repo index <directory>
+```
+
+### Add Repository
+
+```bash
+helm repo add <repo-name> <repo-url>
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+```
+
+### Add Repository With Authentication
+
+```bash
+helm repo add <repo-name> <repo-url> --username <username> --password <password>
+helm repo add <repo-name> <repo-url> --username <username> --password-stdin
+helm repo add <repo-name> <repo-url> --pass-credentials
+```
+
+### Add Repository With TLS Options
+
+```bash
+helm repo add <repo-name> <repo-url> --ca-file <ca-file>
+helm repo add <repo-name> <repo-url> --cert-file <cert-file> --key-file <key-file>
+helm repo add <repo-name> <repo-url> --insecure-skip-tls-verify
+```
+
+### Add Repository With Force Update
+
+```bash
+helm repo add <repo-name> <repo-url> --force-update
+```
+
+### Update Repositories
+
+```bash
+helm repo update
+helm repo update <repo-name>
+helm repo update bitnami
+```
+
+### List Repositories
+
+```bash
+helm repo list
+helm repo list --output table
+helm repo list --output yaml
+helm repo list --output json
+```
+
+### Remove Repositories
+
+```bash
+helm repo remove <repo-name>
+helm repo remove bitnami
+helm repo remove <repo-name-1> <repo-name-2>
+```
+
+### Create Repository Index
+
+```bash
+helm repo index <directory>
+helm repo index ./charts
+helm repo index ./charts --url https://example.com/charts
+helm repo index ./charts --merge ./index.yaml
+helm repo index ./charts --json
+```
+
+## 2. `helm search` - Search Commands
+
+Use `helm search` to find charts in added repositories or Artifact Hub.
+
+### Required `helm search` Commands
+
+```bash
+helm search repo <keyword>
+helm search repo <repo/chart>
+helm search repo <keyword> --versions
+helm search hub <keyword>
+```
+
+### Search Local Repositories
+
+```bash
+helm search repo <keyword>
+helm search repo nginx
+helm search repo bitnami/nginx
+helm search repo nginx --versions
+helm search repo nginx --devel
+helm search repo nginx --version <version-or-constraint>
+helm search repo nginx --regexp
+helm search repo nginx --max-col-width <number>
+```
+
+### Search Local Repositories With Output Format
+
+```bash
+helm search repo nginx --output table
+helm search repo nginx --output yaml
+helm search repo nginx --output json
+```
+
+### Search Artifact Hub
+
+```bash
+helm search hub <keyword>
+helm search hub nginx
+helm search hub wordpress
+helm search hub nginx --max-col-width <number>
+```
+
+### Search Artifact Hub With Output Format
+
+```bash
+helm search hub nginx --output table
+helm search hub nginx --output yaml
+helm search hub nginx --output json
+```
+
+## 3. `helm install` - Install Release Commands
+
+Use `helm install` to create a new release from a chart.
+
+### Required `helm install` Commands
+
+```bash
+helm install <release-name> <chart>
+helm install <release-name> <chart> --namespace <namespace>
+helm install <release-name> <chart> --namespace <namespace> --create-namespace
+helm install <release-name> <chart> --namespace <namespace> --version <chart-version>
+helm install <release-name> <chart> --namespace <namespace> --values values.yaml
+helm install <release-name> <chart> --namespace <namespace> --set key=value
+helm install <release-name> <chart> --namespace <namespace> --wait --timeout 10m
+helm install <release-name> <chart> --namespace <namespace> --atomic --timeout 10m
+helm install <release-name> <chart> --namespace <namespace> --dry-run --debug
+```
+
+### Basic Install
+
+```bash
+helm install <release-name> <chart>
+helm install my-nginx bitnami/nginx
+helm install my-nginx bitnami/nginx --namespace web
+helm install my-nginx bitnami/nginx --namespace web --create-namespace
+```
+
+### Install A Specific Chart Version
+
+```bash
+helm install <release-name> <repo/chart> --namespace <namespace> --version <chart-version>
+helm install my-nginx bitnami/nginx --namespace web --version 15.14.0
+```
+
+### Install With Values
+
+```bash
+helm install <release-name> <chart> --namespace <namespace> --values values.yaml
+helm install <release-name> <chart> --namespace <namespace> -f values.yaml
+helm install <release-name> <chart> --namespace <namespace> -f base-values.yaml -f prod-values.yaml
+helm install <release-name> <chart> --namespace <namespace> --set key=value
+helm install <release-name> <chart> --namespace <namespace> --set image.tag=1.2.3
+helm install <release-name> <chart> --namespace <namespace> --set-string app.version=1.2.3
+helm install <release-name> <chart> --namespace <namespace> --set-literal key=value
+helm install <release-name> <chart> --namespace <namespace> --set-json 'podAnnotations={"team":"platform"}'
+helm install <release-name> <chart> --namespace <namespace> --set-file secret.data=./secret.txt
+helm install <release-name> <chart> --namespace <namespace> --values values.yaml --set image.tag=1.2.3
+```
+
+### Install Safely
+
+```bash
+helm install <release-name> <chart> --namespace <namespace> --wait
+helm install <release-name> <chart> --namespace <namespace> --wait --timeout 10m
+helm install <release-name> <chart> --namespace <namespace> --atomic
+helm install <release-name> <chart> --namespace <namespace> --atomic --timeout 10m
+helm install <release-name> <chart> --namespace <namespace> --dependency-update
+```
+
+### Install Dry Run And Debug
+
+```bash
+helm install <release-name> <chart> --namespace <namespace> --dry-run
+helm install <release-name> <chart> --namespace <namespace> --dry-run --debug
+helm install <release-name> <chart> --namespace <namespace> --dry-run=client
+helm install <release-name> <chart> --namespace <namespace> --dry-run=server
+```
+
+### Install From Different Sources
+
+```bash
+helm install <release-name> <repo/chart> --namespace <namespace>
+helm install <release-name> ./local-chart --namespace <namespace>
+helm install <release-name> ./chart-package.tgz --namespace <namespace>
+helm install <release-name> https://example.com/charts/chart-1.0.0.tgz --namespace <namespace>
+helm install <release-name> oci://<registry>/<namespace>/<chart> --namespace <namespace> --version <chart-version>
+helm install <release-name> <chart-name> --repo <repo-url> --namespace <namespace>
+```
+
+### Install Name And Metadata Options
+
+```bash
+helm install <chart> --generate-name
+helm install <chart> --generate-name --name-template '<template>'
+helm install <release-name> <chart> --replace
+helm install <release-name> <chart> --description 'install description'
+helm install <release-name> <chart> --labels team=platform,env=dev
+```
+
+### Other Important Install Flags
+
+```bash
+helm install <release-name> <chart> --skip-crds
+helm install <release-name> <chart> --include-crds
+helm install <release-name> <chart> --disable-openapi-validation
+helm install <release-name> <chart> --take-ownership
+helm install <release-name> <chart> --post-renderer <renderer-path>
+helm install <release-name> <chart> --post-renderer-args <arg>
+helm install <release-name> <chart> --render-subchart-notes
+helm install <release-name> <chart> --hide-notes
+helm install <release-name> <chart> --hide-secret
+helm install <release-name> <chart> --insecure-skip-tls-verify
+helm install <release-name> <chart> --plain-http
+helm install <release-name> <chart> --username <username> --password <password>
+helm install <release-name> <chart> --pass-credentials
+```
+
+## 4. `helm upgrade` - Upgrade Release Commands
+
+Use `helm upgrade` to change an existing release. Use `--install` to create it if it does not exist.
+
+### Required `helm upgrade` Commands
+
+```bash
+helm upgrade <release-name> <chart> --namespace <namespace>
+helm upgrade --install <release-name> <chart> --namespace <namespace>
+helm upgrade --install <release-name> <chart> --namespace <namespace> --create-namespace
+helm upgrade <release-name> <chart> --namespace <namespace> --version <chart-version>
+helm upgrade <release-name> <chart> --namespace <namespace> --values values.yaml
+helm upgrade <release-name> <chart> --namespace <namespace> --set key=value
+helm upgrade <release-name> <chart> --namespace <namespace> --reuse-values
+helm upgrade <release-name> <chart> --namespace <namespace> --reset-values
+helm upgrade <release-name> <chart> --namespace <namespace> --atomic --cleanup-on-fail --timeout 10m
+helm upgrade <release-name> <chart> --namespace <namespace> --dry-run --debug
+```
+
+### Basic Upgrade
+
+```bash
+helm upgrade <release-name> <chart> --namespace <namespace>
+helm upgrade my-nginx bitnami/nginx --namespace web
+helm upgrade my-nginx bitnami/nginx --namespace web --version 15.14.0
+```
+
+### Upgrade Or Install
+
+```bash
+helm upgrade --install <release-name> <chart> --namespace <namespace>
+helm upgrade --install my-nginx bitnami/nginx --namespace web --create-namespace
+helm upgrade --install my-nginx bitnami/nginx --namespace web --version 15.14.0
+```
+
+### Upgrade With Values
+
+```bash
+helm upgrade <release-name> <chart> --namespace <namespace> --values values.yaml
+helm upgrade <release-name> <chart> --namespace <namespace> -f values.yaml
+helm upgrade <release-name> <chart> --namespace <namespace> -f base-values.yaml -f prod-values.yaml
+helm upgrade <release-name> <chart> --namespace <namespace> --set key=value
+helm upgrade <release-name> <chart> --namespace <namespace> --set image.tag=1.2.3
+helm upgrade <release-name> <chart> --namespace <namespace> --set-string app.version=1.2.3
+helm upgrade <release-name> <chart> --namespace <namespace> --set-literal key=value
+helm upgrade <release-name> <chart> --namespace <namespace> --set-json 'podAnnotations={"team":"platform"}'
+helm upgrade <release-name> <chart> --namespace <namespace> --set-file secret.data=./secret.txt
+```
+
+### Upgrade Value Reuse Or Reset
+
+```bash
+helm upgrade <release-name> <chart> --namespace <namespace> --reuse-values
+helm upgrade <release-name> <chart> --namespace <namespace> --reset-values
+helm upgrade <release-name> <chart> --namespace <namespace> --reset-then-reuse-values
+```
+
+### Upgrade Safely
+
+```bash
+helm upgrade <release-name> <chart> --namespace <namespace> --wait
+helm upgrade <release-name> <chart> --namespace <namespace> --wait --timeout 10m
+helm upgrade <release-name> <chart> --namespace <namespace> --atomic
+helm upgrade <release-name> <chart> --namespace <namespace> --atomic --cleanup-on-fail --timeout 10m
+helm upgrade <release-name> <chart> --namespace <namespace> --dependency-update
+```
+
+### Upgrade Dry Run And Debug
+
+```bash
+helm upgrade <release-name> <chart> --namespace <namespace> --dry-run
+helm upgrade <release-name> <chart> --namespace <namespace> --dry-run --debug
+helm upgrade <release-name> <chart> --namespace <namespace> --dry-run=client
+helm upgrade <release-name> <chart> --namespace <namespace> --dry-run=server
+```
+
+### Other Important Upgrade Flags
+
+```bash
+helm upgrade <release-name> <chart> --namespace <namespace> --force
+helm upgrade <release-name> <chart> --namespace <namespace> --history-max <number>
+helm upgrade <release-name> <chart> --namespace <namespace> --description 'upgrade description'
+helm upgrade <release-name> <chart> --namespace <namespace> --labels team=platform,env=prod
+helm upgrade <release-name> <chart> --namespace <namespace> --skip-crds
+helm upgrade <release-name> <chart> --namespace <namespace> --disable-openapi-validation
+helm upgrade <release-name> <chart> --namespace <namespace> --take-ownership
+helm upgrade <release-name> <chart> --namespace <namespace> --post-renderer <renderer-path>
+helm upgrade <release-name> <chart> --namespace <namespace> --post-renderer-args <arg>
+helm upgrade <release-name> <chart> --namespace <namespace> --render-subchart-notes
+helm upgrade <release-name> <chart> --namespace <namespace> --hide-notes
+helm upgrade <release-name> <chart> --namespace <namespace> --hide-secret
+```
+
+## 5. `helm list` - List Release Commands
+
+Use `helm list` to view releases by namespace, status, label, filter, and output format.
+
+### Required `helm list` Commands
+
+```bash
+helm list
+helm list --namespace <namespace>
+helm list --all-namespaces
+helm list --deployed
+helm list --failed
+helm list --pending
+helm list --uninstalled
+helm list --all
+```
+
+### Basic List
+
+```bash
+helm list
+helm list --namespace <namespace>
+helm list -n web
+helm list --all-namespaces
+helm ls
+helm ls -A
+```
+
+### List By Release Status
+
+```bash
+helm list --deployed
+helm list --failed
+helm list --pending
+helm list --uninstalled
+helm list --uninstalling
+helm list --superseded
+helm list --all
+helm list --namespace <namespace> --deployed
+helm list --namespace <namespace> --failed
+helm list --namespace <namespace> --uninstalled
+helm list --all-namespaces --deployed
+```
+
+### List With Filtering And Sorting
+
+```bash
+helm list --filter '<regular-expression>'
+helm list --filter '^my-'
+helm list --selector key=value
+helm list --namespace <namespace> --selector app=nginx
+helm list --date
+helm list --reverse
+helm list --max <number>
+helm list --offset <number>
+helm list --short
+helm list --time-format '2006-01-02 15:04:05'
+```
+
+### List Output Formats
+
+```bash
+helm list --output table
+helm list --output yaml
+helm list --output json
+```
+
+## 6. `helm status` - Release Status Commands
+
+Use `helm status` to view the status of one release.
+
+### Required `helm status` Commands
+
+```bash
+helm status <release-name> --namespace <namespace>
+helm status <release-name> --namespace <namespace> --show-resources
+helm status <release-name> --namespace <namespace> --revision <revision-number>
+```
+
+### Status Examples
+
+```bash
+helm status my-nginx --namespace web
+helm status my-nginx --namespace web --revision <revision-number>
+helm status my-nginx --namespace web --show-resources
+helm status my-nginx --namespace web --output table
+helm status my-nginx --namespace web --output yaml
+helm status my-nginx --namespace web --output json
+```
+
+## 7. `helm history` - Release History Commands
+
+Use `helm history` to see all revisions for a release.
+
+### Required `helm history` Commands
+
+```bash
+helm history <release-name> --namespace <namespace>
+helm history <release-name> --namespace <namespace> --max <number>
+```
+
+### History Examples
+
+```bash
+helm history my-nginx --namespace web
+helm history my-nginx --namespace web --max <number>
+helm history my-nginx --namespace web --output table
+helm history my-nginx --namespace web --output yaml
+helm history my-nginx --namespace web --output json
+```
+
+## 8. `helm get` - Release Detail Commands
+
+Use `helm get` to download details from an installed release.
+
+### Required `helm get` Commands
+
+```bash
+helm get all <release-name> --namespace <namespace>
+helm get manifest <release-name> --namespace <namespace>
+helm get values <release-name> --namespace <namespace>
+helm get values <release-name> --namespace <namespace> --all
+helm get hooks <release-name> --namespace <namespace>
+helm get notes <release-name> --namespace <namespace>
+helm get metadata <release-name> --namespace <namespace>
+```
+
+### Get All Details
+
+```bash
+helm get all <release-name> --namespace <namespace>
+helm get all my-nginx --namespace web
+helm get all my-nginx --namespace web --revision <revision-number>
+```
+
+### Get Manifest
+
+```bash
+helm get manifest <release-name> --namespace <namespace>
+helm get manifest my-nginx --namespace web
+helm get manifest my-nginx --namespace web --revision <revision-number>
+```
+
+### Get Values
+
+```bash
+helm get values <release-name> --namespace <namespace>
+helm get values my-nginx --namespace web
+helm get values my-nginx --namespace web --all
+helm get values my-nginx --namespace web --revision <revision-number>
+helm get values my-nginx --namespace web --output yaml
+helm get values my-nginx --namespace web --output json
+```
+
+### Get Hooks, Notes, And Metadata
+
+```bash
+helm get hooks <release-name> --namespace <namespace>
+helm get notes <release-name> --namespace <namespace>
+helm get metadata <release-name> --namespace <namespace>
+helm get hooks my-nginx --namespace web --revision <revision-number>
+helm get notes my-nginx --namespace web --revision <revision-number>
+helm get metadata my-nginx --namespace web --revision <revision-number>
+```
+
+## 9. `helm rollback` - Rollback Commands
+
+Use `helm rollback` to move a release back to a previous revision.
+
+### Required `helm rollback` Commands
+
+```bash
+helm history <release-name> --namespace <namespace>
+helm rollback <release-name> <revision-number> --namespace <namespace>
+helm rollback <release-name> <revision-number> --namespace <namespace> --wait --timeout 10m
+```
+
+### Rollback Examples
+
+```bash
+helm rollback <release-name> <revision-number> --namespace <namespace>
+helm rollback my-nginx 1 --namespace web
+helm rollback my-nginx 1 --namespace web --wait
+helm rollback my-nginx 1 --namespace web --wait --timeout 10m
+helm rollback my-nginx 1 --namespace web --atomic
+helm rollback my-nginx 1 --namespace web --cleanup-on-fail
+helm rollback my-nginx 1 --namespace web --force
+helm rollback my-nginx 1 --namespace web --no-hooks
+helm rollback my-nginx 1 --namespace web --recreate-pods
+helm rollback my-nginx 1 --namespace web --history-max <number>
+```
+
+## 10. `helm test` - Test Commands
+
+Use `helm test` to run chart test hooks for a release.
+
+### Required `helm test` Commands
+
+```bash
+helm test <release-name> --namespace <namespace>
+helm test <release-name> --namespace <namespace> --logs
+```
+
+### Test Examples
+
+```bash
+helm test my-nginx --namespace web
+helm test my-nginx --namespace web --logs
+helm test my-nginx --namespace web --filter name=<test-name>
+helm test my-nginx --namespace web --timeout 5m
+```
+
+## 11. `helm uninstall` - Uninstall Commands
+
+Use `helm uninstall` to remove releases.
+
+### Required `helm uninstall` Commands
+
+```bash
+helm uninstall <release-name> --namespace <namespace>
+helm uninstall <release-name> --namespace <namespace> --wait
+helm uninstall <release-name> --namespace <namespace> --keep-history
+helm uninstall <release-name> --namespace <namespace> --ignore-not-found
+```
+
+### Uninstall Examples
+
+```bash
+helm uninstall my-nginx --namespace web
+helm uninstall my-nginx --namespace web --wait
+helm uninstall my-nginx --namespace web --wait --timeout 10m
+helm uninstall my-nginx --namespace web --keep-history
+helm uninstall my-nginx --namespace web --ignore-not-found
+helm uninstall my-nginx --namespace web --no-hooks
+helm uninstall my-nginx --namespace web --cascade background
+helm uninstall my-nginx --namespace web --cascade foreground
+helm uninstall my-nginx --namespace web --cascade orphan
+helm delete my-nginx --namespace web
+```
+
+## 12. `helm template` - Render Template Commands
+
+Use `helm template` to render Kubernetes YAML locally without installing a release.
+
+### Required `helm template` Commands
+
+```bash
+helm template <release-name> <chart>
+helm template <release-name> <chart> --namespace <namespace>
+helm template <release-name> <chart> --namespace <namespace> --values values.yaml
+helm template <release-name> <chart> --namespace <namespace> --set key=value
+helm template <release-name> <chart> --namespace <namespace> --show-only templates/deployment.yaml
+helm template <release-name> <chart> --namespace <namespace> --debug
+```
+
+### Basic Template
+
+```bash
+helm template <release-name> <chart>
+helm template my-nginx bitnami/nginx
+helm template my-nginx bitnami/nginx --namespace web
+helm template my-nginx bitnami/nginx --namespace web --version <chart-version>
+```
+
+### Template With Values
+
+```bash
+helm template <release-name> <chart> --namespace <namespace> --values values.yaml
+helm template <release-name> <chart> --namespace <namespace> -f values.yaml
+helm template <release-name> <chart> --namespace <namespace> --set key=value
+helm template <release-name> <chart> --namespace <namespace> --set-string key=value
+helm template <release-name> <chart> --namespace <namespace> --set-literal key=value
+helm template <release-name> <chart> --namespace <namespace> --set-json 'key={"nested":"value"}'
+helm template <release-name> <chart> --namespace <namespace> --set-file key=./file.txt
+```
+
+### Template Options
+
+```bash
+helm template <release-name> <chart> --namespace <namespace> --debug
+helm template <release-name> <chart> --namespace <namespace> --dry-run=client
+helm template <release-name> <chart> --namespace <namespace> --include-crds
+helm template <release-name> <chart> --namespace <namespace> --skip-crds
+helm template <release-name> <chart> --namespace <namespace> --show-only templates/deployment.yaml
+helm template <release-name> <chart> --namespace <namespace> --output-dir ./rendered
+helm template <release-name> <chart> --namespace <namespace> --validate
+helm template <release-name> <chart> --namespace <namespace> --api-versions monitoring.coreos.com/v1
+helm template <release-name> <chart> --namespace <namespace> --kube-version 1.30.0
+helm template <release-name> <chart> --namespace <namespace> --is-upgrade
+helm template <release-name> <chart> --namespace <namespace> --no-hooks
+helm template <release-name> <chart> --namespace <namespace> --release-name
+helm template <release-name> <chart> --namespace <namespace> --post-renderer <renderer-path>
+```
+
+## 13. `helm show` - Chart Information Commands
+
+Use `helm show` to inspect chart metadata, values, README, CRDs, and full chart details.
+
+### Required `helm show` Commands
+
+```bash
+helm show chart <chart>
+helm show values <chart>
+helm show readme <chart>
+helm show crds <chart>
+helm show all <chart>
+```
+
+### Show Chart Information
+
+```bash
+helm show chart <chart>
+helm show chart bitnami/nginx
+helm show chart bitnami/nginx --version <chart-version>
+```
+
+### Show Default Values
+
+```bash
+helm show values <chart>
+helm show values bitnami/nginx
+helm show values bitnami/nginx --version <chart-version>
+```
+
+### Show README
+
+```bash
+helm show readme <chart>
+helm show readme bitnami/nginx
+```
+
+### Show CRDs
+
+```bash
+helm show crds <chart>
+helm show crds bitnami/nginx
+```
+
+### Show All Details
+
+```bash
+helm show all <chart>
+helm show all bitnami/nginx
+helm show all bitnami/nginx --version <chart-version>
+```
+
+### Common Chart Source Arguments
+
+```bash
+helm show values <repo/chart> --version <chart-version>
+helm show values <chart.tgz>
+helm show values <local-chart-directory>
+helm show values oci://<registry>/<namespace>/<chart> --version <chart-version>
+helm show values <chart> --repo <repo-url>
+helm show values <chart> --username <username> --password <password>
+helm show values <chart> --ca-file <ca-file> --cert-file <cert-file> --key-file <key-file>
+helm show values <chart> --insecure-skip-tls-verify
+```
+
+## 14. `helm pull` - Pull Chart Commands
+
+Use `helm pull` to download a chart from a repository or OCI registry.
+
+### Required `helm pull` Commands
+
+```bash
+helm pull <repo/chart>
+helm pull <repo/chart> --version <chart-version>
+helm pull <repo/chart> --untar
+helm pull oci://<registry>/<namespace>/<chart> --version <chart-version>
+```
+
+### Pull Examples
+
+```bash
+helm pull bitnami/nginx
+helm pull bitnami/nginx --version <chart-version>
+helm pull bitnami/nginx --destination ./downloads
+helm pull bitnami/nginx --untar
+helm pull bitnami/nginx --untar --untardir ./charts
+helm pull bitnami/nginx --prov
+helm pull bitnami/nginx --verify --keyring <keyring-file>
+helm pull oci://<registry>/<namespace>/<chart> --version <chart-version>
+```
+
+## 15. `helm verify` - Verify Chart Commands
+
+Use `helm verify` to verify that a chart package has been signed and is valid.
+
+```bash
+helm verify <chart-package.tgz>
+helm verify nginx-1.0.0.tgz
+helm verify nginx-1.0.0.tgz --keyring <keyring-file>
+```
+
+## 16. `helm create` - Create Chart Commands
+
+Use `helm create` to create a new chart skeleton.
+
+```bash
+helm create <chart-name>
+helm create my-chart
+helm create my-chart --starter <starter-name>
+```
+
+## 17. `helm lint` - Lint Chart Commands
+
+Use `helm lint` to examine a chart for possible issues.
+
+```bash
+helm lint <chart-directory>
+helm lint ./my-chart
+helm lint ./my-chart --values values.yaml
+helm lint ./my-chart -f values.yaml
+helm lint ./my-chart --set key=value
+helm lint ./my-chart --strict
+helm lint ./my-chart --with-subcharts
+helm lint ./my-chart --quiet
+```
+
+## 18. `helm dependency` - Dependency Commands
+
+Use `helm dependency` to manage chart dependencies listed in `Chart.yaml`.
+
+### Required `helm dependency` Commands
+
+```bash
+helm dependency list <chart-directory>
+helm dependency update <chart-directory>
+helm dependency build <chart-directory>
+helm dep list <chart-directory>
+helm dep update <chart-directory>
+helm dep build <chart-directory>
+```
+
+### Dependency Examples
+
+```bash
+helm dependency list ./my-chart
+helm dependency update ./my-chart
+helm dependency build ./my-chart
+helm dep list ./my-chart
+helm dep update ./my-chart
+helm dep build ./my-chart
+```
+
+### Dependency Flags
+
+```bash
+helm dependency update ./my-chart --skip-refresh
+helm dependency update ./my-chart --verify
+helm dependency update ./my-chart --keyring <keyring-file>
+helm dependency build ./my-chart --skip-refresh
+helm dependency build ./my-chart --verify
+helm dependency build ./my-chart --keyring <keyring-file>
+```
+
+## 19. `helm package` - Package Chart Commands
+
+Use `helm package` to package a chart directory into a chart archive.
+
+```bash
+helm package <chart-directory>
+helm package ./my-chart
+helm package ./my-chart --destination ./packages
+helm package ./my-chart --version <chart-version>
+helm package ./my-chart --app-version <app-version>
+helm package ./my-chart --dependency-update
+helm package ./my-chart --sign --key <key-name> --keyring <keyring-file>
+helm package ./my-chart --passphrase-file <passphrase-file>
+```
+
+## 20. `helm registry` - OCI Registry Login Commands
+
+Use `helm registry` to log in to or out of OCI registries.
+
+### Required `helm registry` Commands
+
+```bash
+helm registry login <registry-host>
+helm registry logout <registry-host>
+```
+
+### Registry Login And Logout
+
+```bash
+helm registry login <registry-host>
+helm registry login ghcr.io
+helm registry login <registry-host> --username <username> --password <password>
+helm registry login <registry-host> --username <username> --password-stdin
+helm registry login <registry-host> --ca-file <ca-file>
+helm registry login <registry-host> --cert-file <cert-file> --key-file <key-file>
+helm registry login <registry-host> --insecure
+helm registry logout <registry-host>
+helm registry logout ghcr.io
+```
+
+## 21. `helm push` - Push Chart Commands
+
+Use `helm push` to push a packaged chart to a remote registry.
+
+```bash
+helm push <chart-package.tgz> oci://<registry>/<namespace>
+helm push my-chart-1.0.0.tgz oci://ghcr.io/my-org/charts
+helm push my-chart-1.0.0.tgz oci://<registry>/<namespace> --ca-file <ca-file>
+helm push my-chart-1.0.0.tgz oci://<registry>/<namespace> --cert-file <cert-file> --key-file <key-file>
+helm push my-chart-1.0.0.tgz oci://<registry>/<namespace> --insecure-skip-tls-verify
+helm push my-chart-1.0.0.tgz oci://<registry>/<namespace> --plain-http
+```
+
+## 22. OCI Chart Usage Commands
+
+These commands use OCI chart URLs with other Helm command families.
+
+```bash
+helm pull oci://<registry>/<namespace>/<chart> --version <chart-version>
+helm show values oci://<registry>/<namespace>/<chart> --version <chart-version>
+helm install <release-name> oci://<registry>/<namespace>/<chart> --namespace <namespace> --version <chart-version>
+helm upgrade <release-name> oci://<registry>/<namespace>/<chart> --namespace <namespace> --version <chart-version>
+```
+
+## 23. `helm plugin` - Plugin Commands
+
+Use `helm plugin` to install, list, update, and uninstall Helm plugins.
+
+### Required `helm plugin` Commands
+
+```bash
+helm plugin list
+helm plugin install <plugin-url>
+helm plugin update <plugin-name>
+helm plugin uninstall <plugin-name>
+```
+
+### Plugin Examples
+
+```bash
+helm plugin list
+helm plugin install <plugin-url>
+helm plugin install https://github.com/databus23/helm-diff
+helm plugin install <plugin-url> --version <plugin-version>
+helm plugin update <plugin-name>
+helm plugin update <plugin-name-1> <plugin-name-2>
+helm plugin uninstall <plugin-name>
+helm plugin uninstall <plugin-name-1> <plugin-name-2>
+```
+
+### Common Plugin Usage Example
+
+```bash
+helm plugin install https://github.com/databus23/helm-diff
+helm diff upgrade <release-name> <chart> --namespace <namespace> --values values.yaml
+helm diff revision <release-name> <revision-number> --namespace <namespace>
+helm diff rollback <release-name> <revision-number> --namespace <namespace>
+```
+
+## 24. `helm completion` - Shell Completion Commands
+
+Use `helm completion` to generate shell autocomplete scripts.
+
+```bash
+helm completion bash
+helm completion zsh
+helm completion fish
+helm completion powershell
+```
+
+### Bash Completion
+
+```bash
+helm completion bash > /etc/bash_completion.d/helm
+source <(helm completion bash)
+```
+
+### Zsh Completion
+
+```bash
+source <(helm completion zsh)
+```
+
+### Fish Completion
+
+```bash
+helm completion fish | source
+```
+
+### PowerShell Completion
+
+```powershell
+helm completion powershell | Out-String | Invoke-Expression
+```
+
+## 25. `helm env` - Environment Commands
+
+Use `helm env` to print Helm environment information.
+
+```bash
+helm env
+helm env HELM_CACHE_HOME
+helm env HELM_CONFIG_HOME
+helm env HELM_DATA_HOME
+helm env HELM_NAMESPACE
+```
+
+### Important Helm Environment Variables
+
+```bash
+HELM_CACHE_HOME
+HELM_CONFIG_HOME
+HELM_DATA_HOME
+HELM_DEBUG
+HELM_DRIVER
+HELM_DRIVER_SQL_CONNECTION_STRING
+HELM_MAX_HISTORY
+HELM_NAMESPACE
+HELM_NO_PLUGINS
+HELM_PLUGINS
+HELM_REGISTRY_CONFIG
+HELM_REPOSITORY_CACHE
+HELM_REPOSITORY_CONFIG
+KUBECONFIG
+HELM_KUBECONTEXT
+HELM_KUBEAPISERVER
+HELM_KUBETOKEN
+HELM_KUBEASUSER
+HELM_KUBEASGROUPS
+HELM_KUBECAFILE
+HELM_KUBEINSECURE_SKIP_TLS_VERIFY
+HELM_KUBETLS_SERVER_NAME
+HELM_BURST_LIMIT
+HELM_QPS
+```
+
+## 26. `helm version` - Version Commands
+
+Use `helm version` to print Helm client version information.
+
+```bash
+helm version
+helm version --short
+helm version --template '{{.Version}}'
+```
+
+## 27. `helm help` - Help Commands
+
+Use `helm help` or `--help` to inspect commands.
+
+```bash
+helm help
+helm --help
+helm <command> --help
+helm repo --help
+helm install --help
+helm upgrade --help
+```
+
+## 28. Global Flags Used With Most Commands
+
+These flags can be used with many Helm commands.
+
+```bash
+helm <command> --namespace <namespace>
+helm <command> -n <namespace>
+helm <command> --kube-context <context-name>
+helm <command> --kubeconfig <path-to-kubeconfig>
+helm <command> --debug
+helm <command> --registry-config <path>
+helm <command> --repository-cache <path>
+helm <command> --repository-config <path>
+helm <command> --kube-apiserver <api-server-url>
+helm <command> --kube-token <token>
+helm <command> --kube-ca-file <ca-file>
+helm <command> --kube-as-user <username>
+helm <command> --kube-as-group <group>
+helm <command> --kube-insecure-skip-tls-verify
+helm <command> --kube-tls-server-name <server-name>
+helm <command> --burst-limit <number>
+helm <command> --qps <number>
+```
+
+## 29. All Helm Top-Level Commands
+
+```bash
+helm completion
+helm create
+helm dependency
+helm env
+helm get
+helm help
+helm history
+helm install
+helm lint
+helm list
+helm package
+helm plugin
+helm pull
+helm push
+helm registry
+helm repo
+helm rollback
+helm search
+helm show
+helm status
+helm template
+helm test
+helm uninstall
+helm upgrade
+helm verify
+helm version
+```
+
+## 30. All Common Subcommands
+
+```bash
+helm completion bash
+helm completion fish
+helm completion powershell
+helm completion zsh
+
+helm dependency build
+helm dependency list
+helm dependency update
+
+helm get all
+helm get hooks
+helm get manifest
+helm get metadata
+helm get notes
+helm get values
+
+helm plugin install
+helm plugin list
+helm plugin uninstall
+helm plugin update
+
+helm registry login
+helm registry logout
+
+helm repo add
+helm repo index
+helm repo list
+helm repo remove
+helm repo update
+
+helm search hub
+helm search repo
+
+helm show all
+helm show chart
+helm show crds
+helm show readme
+helm show values
+```
+
+## 31. Common Workflows
+
+These workflows combine multiple Helm command families.
+
+### Add Repo, Search, Install
+
+```bash
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
+helm search repo bitnami/nginx --versions
+helm install my-nginx bitnami/nginx --namespace web --create-namespace --version <chart-version> --values values.yaml --wait
+```
+
+### Install Or Upgrade Idempotently
+
+```bash
+helm upgrade --install my-nginx bitnami/nginx --namespace web --create-namespace --values values.yaml --atomic --timeout 10m
+```
+
+### Check What Is Running
+
+```bash
+helm list --all-namespaces
+helm list --namespace web --deployed
+helm status my-nginx --namespace web --show-resources
+helm get values my-nginx --namespace web --all
+helm get manifest my-nginx --namespace web
+```
+
+### Debug A Failed Release
+
+```bash
+helm list --namespace web --failed
+helm status my-nginx --namespace web --show-resources
+helm history my-nginx --namespace web
+helm get all my-nginx --namespace web
+helm get hooks my-nginx --namespace web
+helm test my-nginx --namespace web --logs
+```
+
+### Roll Back A Bad Upgrade
+
+```bash
+helm history my-nginx --namespace web
+helm rollback my-nginx <revision-number> --namespace web --wait --timeout 10m
+helm status my-nginx --namespace web
+```
+
+### Render Before Applying
+
+```bash
+helm template my-nginx bitnami/nginx --namespace web --values values.yaml --debug > rendered.yaml
+helm install my-nginx bitnami/nginx --namespace web --values values.yaml --dry-run --debug
+helm upgrade my-nginx bitnami/nginx --namespace web --values values.yaml --dry-run --debug
+```
+
+### Clean Up A Release
+
+```bash
+helm uninstall my-nginx --namespace web --wait
+helm list --namespace web --uninstalled
+helm uninstall my-nginx --namespace web --keep-history
+```
+# Helm Commands Reference
+
 This is a practical Helm command cheat sheet. Frequently used commands are at the top. Less frequent reference commands, such as environment and completion commands, are near the bottom.
 
 Recommended command order:
