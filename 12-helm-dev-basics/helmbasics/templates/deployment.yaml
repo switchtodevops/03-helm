@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-{{ .Chart.Name }}
+  {{/*
+  #Invalid Action Element
+  #name: {{ something }}-{{ .Chart.Name }}
+  */}}
+  annotations:
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    # Quote Function
+    app.kubernetes.io/managed-by: {{ quote .Release.Service }}
+    # Pipeline & lower fucntion 
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote | lower }}  
+    # Pipeline & lower fucntion 
+    app.kubernetes.io/managed-by: {{ .Release.Service | quote | upper }}      
+    # default Function
+    app.kubernetes.io/name: {{ default "MYRELEASE101" .Values.releaseName | lower }}
+    # Controlling Leading and Trailing White spaces 
+    leading-whitespace: "   {{- .Chart.Name }}    kalyan"
+    trailing-whitespace: "   {{ .Chart.Name -}}    kalyan"
+    leadtrail-whitespace: "   {{- .Chart.Name -}}    kalyan" 
+    #indent function
+    indenttest: "  {{- .Chart.Name | indent 4 -}}  "
+    # nindent function
+    nindenttest: "  {{- .Chart.Name | nindent 4 -}}  "
+  labels:
+    app: nginx
+spec:
+  replicas: {{ default 1  .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
+        resources:
+       {{- toYaml .Values.resources | nindent 10}}
