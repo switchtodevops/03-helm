@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "builtin-objects-demo.fullname" . }}
+  labels:
+    {{- include "builtin-objects-demo.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "builtin-objects-demo.selectorLabels" . | nindent 4 }}
