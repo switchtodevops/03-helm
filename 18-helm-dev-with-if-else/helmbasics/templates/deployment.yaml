@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+{{- with .Values.myapp }}
+{{- if and .retail.enableFeature (eq .env "prod") }}
+  replicas: 6
+{{- else if eq .env "prod" }}
+  replicas: 4
+{{- else if eq .env "qa" }}  
+  replicas: 2
+{{- else }}  
+  replicas: 1  
+{{- end }}
+{{- end }}
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
